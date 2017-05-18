@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+</head>
+<body>
+  address <input id="address"/>
+  port <input id="port"/>
+  <button id="connect" type="button">
+    connect!
+  </button>
+  <br/>
+  <div> Connection status: <span id="status"> not connected </span> </div> 
+  <br/>
+  <br/>
+  <button id="task" type="button">
+      Get a task!
+  </button>
+  <br/>
+  <br/>
+  <button id="file" type="button">
+      Write a file!
+  </button>
+</body>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+  <script src="/js/client.js"></script>
+</html>

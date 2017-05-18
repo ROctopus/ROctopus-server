@@ -1,0 +1,4 @@
+"code";"message";"description";"suggested action"
+
+0;"client connected";"Sent on connect";"do nothing"
+1;"File successfully saved";"The file was stored in the user's directory";"go to next job"
