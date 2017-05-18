@@ -8,6 +8,7 @@ var db = new sq.Database('./public/queue.db');
 
 //This will open a server on port 8080.
 app.listen(8080);
+console.log("Serving on port 8080")
 
 // Http handler function
 function handler (req, res) {
@@ -65,7 +66,7 @@ io.sockets.on('connection', function (socket) {
     db.get('SELECT COUNT(*) FROM queue WHERE STATUS="qw"', function(err,nrow){
       if(err){
         console.log(err);
-        socket.emit('error', { msg: 2 }); // Failed to count available jobs
+        socket.emit('err', { msg: 2 }); // Failed to count available jobs
       } else {
         if (nrow[['COUNT(*)']]>0){
           console.log(nrow[['COUNT(*)']]+" jobs available.");
@@ -74,7 +75,7 @@ io.sockets.on('connection', function (socket) {
           db.get('SELECT * FROM queue WHERE STATUS="qw" ORDER BY ID', function(err,row){
             if (err){
               console.log(err);
-              socket.emit('error', { msg: 3 }); // No job found
+              socket.emit('err', { msg: 3 }); // No job found
             } else {
               console.log("Assigning jobID and locking "+row.ID);
               var result = row
@@ -83,7 +84,7 @@ io.sockets.on('connection', function (socket) {
               function(err){ 
                 if (err){
                   console.log(err);
-                  socket.emit('error', { msg: 4 }); // Job failed to lock
+                  socket.emit('err', { msg: 4 }); // Job failed to lock
                 } else {
                   // Send job info to the worker
                   console.log("Sending job to client");
@@ -93,7 +94,7 @@ io.sockets.on('connection', function (socket) {
             }
           });
         } else {
-          socket.emit('error', { msg: 1 }); // No jobs available
+          socket.emit('err', { msg: 1 }); // No jobs available
         }
       }
     });
@@ -110,13 +111,18 @@ io.sockets.on('connection', function (socket) {
     db.get('SELECT user FROM queue WHERE ID='+jobID, function(err, row){
       if (err){
         console.log(err);
-        socket.emit('error', { msg: 5 }); // Save folder not found
+        socket.emit('err', { msg: 5 }); // Save folder not found
       } else {
+        // Check if directory exists
+        var targetDir = __dirname+"/results/"+row.USER
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir);
+        }
         // write file to results directory
-        fs.writeFile(__dirname+"/results/"+row.USER+"/"+jobID, bytes, function(err) {
+        fs.writeFile(targetDir+"/"+jobID, bytes, function(err) {
             if(err) {
               console.log(err);
-              socket.emit('error', { msg: 6 }); // File save failed
+              socket.emit('err', { msg: 6 }); // File save failed
             } else {
               console.log("The file was saved!");
               socket.emit('message', { msg: 1 }); // File successfully saved

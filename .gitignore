@@ -1,5 +1,6 @@
 # node modules & releases
 node_modules
+results/*
 
 # Windows image file caches
 Thumbs.db

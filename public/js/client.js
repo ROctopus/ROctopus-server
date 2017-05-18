@@ -10,15 +10,15 @@ function connectSocket(address,port){
       lastresult = data;
   });
   
-  socket.on('error', function(data){
-    console.log(data.msg);
+  socket.on('err', function(data){
+    console.log("error: "+data.msg);
   });
   
   socket.on('message', function(data){
     if (data.msg == 0){
       document.getElementById("status").innerHTML = "successfully connected"
     }
-    console.log(data.msg);
+    console.log("message: "+data.msg);
   });  
 }
 
