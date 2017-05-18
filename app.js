@@ -115,8 +115,8 @@ io.sockets.on('connection', function (socket) {
       } else {
         // Check if directory exists
         var targetDir = __dirname+"/results/"+row.USER
-        if (!fs.existsSync(dir)){
-            fs.mkdirSync(dir);
+        if (!fs.existsSync(targetDir)){
+            fs.mkdirSync(targetDir);
         }
         // write file to results directory
         fs.writeFile(targetDir+"/"+jobID, bytes, function(err) {
