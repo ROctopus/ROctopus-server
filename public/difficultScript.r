@@ -7,11 +7,11 @@ runID <- args[3]
 load(inpLocation)
 
 # extremely difficult computation
-out <- numeric(length(df))
+out <- character(length(df))
 for (i in df){
-  out[i] <- c(runID, "    ", Sys.time())
-  Sys.sleep(3)
+  out[i] <- paste0("id ", runID, "  at  ", Sys.time())
+  Sys.sleep(0.3)
 }
 
 # save the result
-save(out, outLocation)
+save(out, file = outLocation)
