@@ -1,0 +1,12 @@
+{
+ "name": "ROctopus-server",
+ "description": "The server for ROctopus",
+ "version": "0.0.1",
+ "main": "app.js",
+ "dependencies": {
+   "sqlite3":"3.x.x",
+   "socket.io": "1.7.3"
+ },
+ "author": "Erik-Jan van Kesteren",
+ "contributors": [ "Oguzhan Ögreden" ]
+}
