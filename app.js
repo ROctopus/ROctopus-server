@@ -113,7 +113,7 @@ io.sockets.on('connection', function (socket) {
         console.log(err);
         socket.emit('err', { msg: 5 }); // Save folder not found
       } else {
-        // Check if directory exists
+        // Check if user directory exists
         var targetDir = __dirname+"/results/"+row.USER
         if (!fs.existsSync(targetDir)){
             fs.mkdirSync(targetDir);
@@ -130,6 +130,49 @@ io.sockets.on('connection', function (socket) {
         });
       }
     });
-    
   });
+  
+  socket.on('add_task', function(data){
+    console.log("taskadd requested")
+    // get lowest jobID
+    db.get('SELECT * FROM queue ORDER BY ID DESC', function(err, row){
+      if (err){
+        console.log(err);
+        socket.emit('err', {msg: 7}); // Database did not respond
+      } else {
+        var curID = parseInt(row.ID) + 1
+        // Create sql query
+        var insertQuery = 'INSERT INTO queue VALUES(' +
+          curID + ',"' + 
+          data.rscript + '","' + 
+          data.rdata + '","' + 
+          data.user + 
+          '","qw")';
+        console.log(insertQuery);
+        // run query
+        db.run(insertQuery, function(err){
+          if (err) {
+            console.log(err);
+            socket.emit('err', {msg: 8}); // Task insertion failed
+          } else {
+            socket.emit("task_added", { "ID": curID });
+          }
+        }); 
+      }
+    });
+  });
+    
 });
+
+
+// Functions
+function genID(){
+  // This function generates a unique job identifier based on the current time
+  // get current time in microseconds
+  var st = process.hrtime().toString().replace(",","");
+  // add random component
+  var st2 = st + "-" + Math.random().toString().replace("0.","").substr(0,5);
+  // base64 encode
+  bu = new Buffer(st2, "binary");
+  return bu.toString('base64');
+}

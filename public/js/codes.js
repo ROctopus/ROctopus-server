@@ -35,6 +35,18 @@ var codes = {
       "msg": "File save failed",
       "description": "Server could not save the file in the suggested location",
       "action": "retry"
+    },
+    "7": {
+      "type": "taskadd",
+      "msg": "Database did not respond",
+      "description": "Database could not assign task IDs",
+      "action": "retry"
+    },
+    "8": {
+      "type": "taskadd",
+      "msg": "Task insertion failed",
+      "description": "Database could not insert the task(s)",
+      "action": "retry"
     }
   },
   "message": {
