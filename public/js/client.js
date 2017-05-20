@@ -11,14 +11,14 @@ function connectSocket(address,port){
   });
   
   socket.on('err', function(data){
-    console.log("error: "+data.msg);
+    console.log("error: "+codes.error[[data.msg]].msg);
   });
   
   socket.on('message', function(data){
     if (data.msg == 0){
-      document.getElementById("status").innerHTML = "successfully connected"
+      document.getElementById("status").innerHTML = codes.message[[data.msg]].msg;
     }
-    console.log("message: "+data.msg);
+    console.log("message: "+codes.message[[data.msg]].msg);
   });  
 }
 
