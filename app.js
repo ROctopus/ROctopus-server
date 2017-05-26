@@ -12,16 +12,13 @@ console.log("Serving on port 8080")
 
 // Http handler function
 function handler (request, response) {
-    console.log('request ', request.url);
 
     var filePath = __dirname + '/public' + url.parse(request.url).pathname;
     if (filePath == __dirname + '/public/')
         filePath = __dirname + '/public/index.html';
     
-    console.log(filePath);
-
+    
     var extname = String(path.extname(filePath)).toLowerCase();
-    console.log(extname);
     var contentType = 'text/html';
     var mimeTypes = {
         '.html': 'text/html',
