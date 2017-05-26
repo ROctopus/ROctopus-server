@@ -4,49 +4,63 @@ var url = require('url');
 var fs = require('fs');
 var sq = require('sqlite3').verbose();
 var db = new sq.Database('./public/queue.db');
-
+var path = require('path')
 
 //This will open a server on port 8080.
 app.listen(8080);
 console.log("Serving on port 8080")
 
 // Http handler function
-function handler (req, res) {
+function handler (request, response) {
+    console.log('request ', request.url);
 
-    // Using URL to parse the requested URL
-    var path = url.parse(req.url).pathname;
+    var filePath = __dirname + '/public' + url.parse(request.url).pathname;
+    if (filePath == __dirname + '/public/')
+        filePath = __dirname + '/public/index.html';
+    
+    console.log(filePath);
 
-    // Managing the root route
-    if (path == '/') {
-        index = fs.readFile(__dirname+'/public/index.html', 
-            function(error,data) {
+    var extname = String(path.extname(filePath)).toLowerCase();
+    console.log(extname);
+    var contentType = 'text/html';
+    var mimeTypes = {
+        '.html': 'text/html',
+        '.js': 'text/javascript',
+        '.css': 'text/css',
+        '.json': 'application/json',
+        '.png': 'image/png',
+        '.jpg': 'image/jpg',
+        '.gif': 'image/gif',
+        '.wav': 'audio/wav',
+        '.mp4': 'video/mp4',
+        '.woff': 'application/font-woff',
+        '.ttf': 'application/font-ttf',
+        '.eot': 'application/vnd.ms-fontobject',
+        '.otf': 'application/font-otf',
+        '.svg': 'application/image/svg+xml'
+    };
 
-                if (error) {
-                    res.writeHead(500);
-                    return res.end("Error: unable to load index.html");
-                }
+    contentType = mimeTypes[extname] || 'application/octet-stream';
 
-                res.writeHead(200,{'Content-Type': 'text/html'});
-                res.end(data);
-            });
-    // Managing the route for the javascript files
-    } else if( /\.(js)$/.test(path) ) {
-        index = fs.readFile(__dirname+'/public'+path, 
-            function(error,data) {
-
-                if (error) {
-                    res.writeHead(500);
-                    return res.end("Error: unable to load " + path);
-                }
-
-                res.writeHead(200,{'Content-Type': 'text/plain'});
-                res.end(data);
-            });
-    } else {
-        res.writeHead(404);
-        res.end("Error: 404 - File not found.");
-    }
-
+    fs.readFile(filePath, function(error, content) {
+        if (error) {
+            if(error.code == 'ENOENT'){
+                fs.readFile('./public/404.html', function(error, content) {
+                    response.writeHead(200, { 'Content-Type': contentType });
+                    response.end(content, 'utf-8');
+                });
+            }
+            else {
+                response.writeHead(500);
+                response.end('Sorry, check with the site admin for error: '+error.code+' ..\n');
+                response.end();
+            }
+        }
+        else {
+            response.writeHead(200, { 'Content-Type': contentType });
+            response.end(content, 'utf-8');
+        }
+    });
 }
 
 
