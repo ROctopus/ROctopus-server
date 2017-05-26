@@ -5,8 +5,8 @@
  "main": "app.js",
  "dependencies": {
    "sqlite3":"3.x.x",
-   "socket.io": "1.7.3"
+   "socket.io": "2.x.x"
  },
  "author": "Erik-Jan van Kesteren",
- "contributors": [ "Oguzhan �greden" ]
+ "contributors": [ "Oguzhan Ogreden" ]
 }
