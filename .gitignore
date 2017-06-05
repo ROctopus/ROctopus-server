@@ -1,6 +1,6 @@
-# node modules & releases
+# node modules
 node_modules
-results/*
+.ip-address
 
 # Windows image file caches
 Thumbs.db

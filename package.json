@@ -1,8 +1,12 @@
 {
  "name": "ROctopus-server",
  "description": "The server for ROctopus",
- "version": "0.0.1",
+ "version": "0.0.2",
  "main": "app.js",
+ "scripts": { 
+   "start": "node ./rocto.js",
+   "init-db": "node ./init-db.js"
+ },
  "dependencies": {
    "sqlite3":"3.x.x",
    "socket.io": "2.x.x"
