@@ -75,11 +75,11 @@ io.sockets.on("connection", function (socket) {
   console.log("New connection from "+clientIP+" assigned to socket "+socketID);
   // Worker requests a job, get it from database and send it back if available!
   socket.on("request_task", function(data) {
-
+    console.log("task requested")
     if (data) { 
       // TODO: Check API compliance
       console.log(data);
-    };
+    }
     
     // Check if any tasks are available
     db.get("SELECT COUNT(*) FROM queue WHERE STATUS='qw'", function(err,nrow) {
@@ -94,7 +94,7 @@ io.sockets.on("connection", function (socket) {
           var taskQuery = `
           SELECT jobId, iterNo, contentUrl
           FROM queue
-          WHERE status="qw"
+          WHERE status= 'qw'
           ORDER BY datetime(timeStamp) DESC, iterNo ASC;
           `
           db.get(taskQuery, function(err,row) {
@@ -102,11 +102,12 @@ io.sockets.on("connection", function (socket) {
               console.log(err);
               socket.emit("err", 3); // No task found
             } else {
-              console.log("Assigning and locking " + row.jobId + );
+              var task = row;
+              console.log("Assigning and locking " + row.jobId + row.iterNo );
               var lockQuery = `
               UPDATE queue 
-              SET STATUS = "lc" 
-              WHERE jobId = ` + row.jobId + `
+              SET status = "lc" 
+              WHERE jobId = '` + row.jobId + `'
               AND iterNo = ` + row.iterNo + `
               ;
               `
@@ -117,8 +118,8 @@ io.sockets.on("connection", function (socket) {
                 } else {
                   // We can send the task to the worker!
                   console.log("Sending task to client");
-                  var task = row.push({ "version" : apiVersion });
-                  socket.emit("task_returned", task);
+                  task.version = apiVersion;
+                  socket.emit("return_task", task);
                 }
               });
             }
