@@ -66,7 +66,7 @@ io.sockets.on('connection', function (socket) {
   var socketID = socket.id;
   var clientIP = socket.request.connection.remoteAddress;
   
-  socket.emit('message', { msg: 0 })
+  socket.emit('msg', { msg: 0 })
   
   console.log('New connection from '+clientIP+' assigned to socket '+socketID);
   // Worker requests a job, get it from database and send it back if available!
@@ -136,7 +136,7 @@ io.sockets.on('connection', function (socket) {
               socket.emit('err', { msg: 6 }); // File save failed
             } else {
               console.log("The file was saved!");
-              socket.emit('message', { msg: 1 }); // File successfully saved
+              socket.emit('msg', { msg: 1 }); // File successfully saved
             }
         });
       }

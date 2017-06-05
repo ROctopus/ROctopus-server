@@ -9,7 +9,7 @@ function connectSocket(address,port){
     console.log("error: "+codes.error[[data.msg]].msg);
   });
   
-  socket.on('message', function(data){
+  socket.on('msg', function(data){
     if (data.msg == 0){
       document.getElementById("status").innerHTML = codes.message[[data.msg]].msg;
     }
