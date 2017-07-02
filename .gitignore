@@ -2,6 +2,13 @@
 node_modules
 .ip-address
 
+# database helper files
+*.db-shm
+*.db-wal
+
+# results folder
+results/*
+
 # Windows image file caches
 Thumbs.db
 ehthumbs.db

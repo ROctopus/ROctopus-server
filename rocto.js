@@ -73,62 +73,67 @@ io.sockets.on("connection", function (socket) {
   socket.emit("msg", 0)
   
   console.log("New connection from "+clientIP+" assigned to socket "+socketID);
+  
+  // Socket connections
+  
   // Worker requests a job, get it from database and send it back if available!
   socket.on("request_task", function(data) {
     console.log("task requested")
     if (data) { 
-      // TODO: Check API compliance
-      console.log(data);
-    }
-    
-    // Check if any tasks are available
-    db.get("SELECT COUNT(*) FROM queue WHERE STATUS='qw'", function(err,nrow) {
-      if(err){
-        console.log(err);
-        socket.emit("err", 2); // Failed to count available tasks
+      if (data.version != apiVersion) {
+        socket.emit("err", -1);
       } else {
-        if (nrow[["COUNT(*)"]]>0) {
-          console.log(nrow[["COUNT(*)"]]+" jobs available.");
-          // If task is available, lock it and send it!
-          // Select the first available task from the table
-          var taskQuery = `
-          SELECT jobId, iterNo, contentUrl
-          FROM queue
-          WHERE status= 'qw'
-          ORDER BY datetime(timeStamp) DESC, iterNo ASC;
-          `
-          db.get(taskQuery, function(err,row) {
-            if (err){
-              console.log(err);
-              socket.emit("err", 3); // No task found
-            } else {
-              var task = row;
-              console.log("Assigning and locking " + row.jobId + row.iterNo );
-              var lockQuery = `
-              UPDATE queue 
-              SET status = "lc" 
-              WHERE jobId = '` + row.jobId + `'
-              AND iterNo = ` + row.iterNo + `
-              ;
+        // Check if any tasks are available
+        db.get("SELECT COUNT(*) FROM queue WHERE STATUS='qw'", function(err,nrow) {
+          if(err){
+            console.log(err);
+            socket.emit("err", 2); // Failed to count available tasks
+          } else {
+            if (nrow[["COUNT(*)"]]>0) {
+              console.log(nrow[["COUNT(*)"]]+" jobs available.");
+              // If task is available, lock it and send it!
+              // Select the first available task from the table
+              var taskQuery = `
+              SELECT jobId, iterNo, contentUrl
+              FROM queue
+              WHERE status= 'qw'
+              ORDER BY datetime(timeStamp) DESC, iterNo ASC;
               `
-              db.run(lockQuery, function(err){
+              db.get(taskQuery, function(err,row) {
                 if (err){
                   console.log(err);
-                  socket.emit("err", 4); // Task failed to lock
+                  socket.emit("err", 3); // No task found
                 } else {
-                  // We can send the task to the worker!
-                  console.log("Sending task to client");
-                  task.version = apiVersion;
-                  socket.emit("return_task", task);
+                  var task = row;
+                  console.log("Assigning and locking " + row.jobId + row.iterNo );
+                  var lockQuery = `
+                  UPDATE queue 
+                  SET status = "lc" 
+                  WHERE jobId = '` + row.jobId + `'
+                  AND iterNo = ` + row.iterNo + `
+                  ;
+                  `
+                  db.run(lockQuery, function(err){
+                    if (err){
+                      console.log(err);
+                      socket.emit("err", 4); // Task failed to lock
+                    } else {
+                      // We can send the task to the worker!
+                      console.log("Sending task to client");
+                      task.version = apiVersion;
+                      socket.emit("return_task", task);
+                    }
+                  });
                 }
               });
+            } else {
+              socket.emit("err", 1); // No tasks available
             }
-          });
-        } else {
-          socket.emit("err", 1); // No tasks available
-        }
+          }
+        });
       }
-    });
+    }
+
   });
   
   // Worker sends back results, save them.
@@ -142,10 +147,12 @@ io.sockets.on("connection", function (socket) {
       if (data.exitStatus != 0){
         console.log("something went wrong with task " + jobId + "_" + iterNo);
         console.log(bytes.toString());
+        socket.emit("err", -1);
+        
       } else {
         // determine where to save the job results
-        db.get("SELECT user FROM queue WHERE jobId = " + jobId, 
-        function(err, row){
+        var query = "SELECT user FROM queue WHERE jobId = '" + jobId + "'"
+        db.get(query, (err, row) => {
           if (err){
             
             console.log(err);
@@ -169,7 +176,7 @@ io.sockets.on("connection", function (socket) {
                   socket.emit("err", 6); // File save failed
                 } else {
                   console.log("The file was saved!");
-                  socket.emit("msg", 1); // File successfully saved
+                  socket.emit("msg", 2); // File successfully saved
                 }
             });
           }
@@ -182,8 +189,22 @@ io.sockets.on("connection", function (socket) {
     }
   });
   
+  // Alice submits a job
   socket.on("submit_job", function(data){
-    console.log("jobadd requested")
+    console.log("Job add requested")
+    
+    // Check version
+    if (data.version == "0.1.0"){
+      
+      
+      
+    } else {
+      
+      socket.emit("err", -1)
+      
+    }
+    
+    
     // get lowest jobID
     db.get("SELECT * FROM queue ORDER BY ID DESC", function(err, row){
       if (err){
