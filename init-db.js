@@ -41,7 +41,7 @@ fs.unlink("./db/queue.db", (err) => {
              [
               "JOBIDTEST",
               "erikjan", 
-              i,
+              i+1,
               "http://" + ip + "/public/example.zip",
               "qw"
              ]);
