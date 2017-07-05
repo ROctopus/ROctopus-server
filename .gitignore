@@ -6,9 +6,6 @@ node_modules
 *.db-shm
 *.db-wal
 
-# Results folder
-results/*
-
 # Windows image file caches
 Thumbs.db
 ehthumbs.db
