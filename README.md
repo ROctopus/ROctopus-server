@@ -1,8 +1,8 @@
-# ROctopus-server
+# ROctopus-server [![Build Status](https://travis-ci.org/roctoproject/rocto-server.svg)](https://travis-ci.org/roctoproject/rocto-server)
 ## How to build & run
 
 1. Install [`node.js`](https://nodejs.org/en/download/).
-2. `git clone https://github.com/ROctopus/ROctopus-server.git`
+2. `git clone https://github.com/roctoproject/rocto-server.git`
 3. Open repo in terminal/shell.
 4. Set up the necessary node modules: `npm install`
 5. OPTIONAL: install pm2 to use daemons: `npm install -g pm2`
