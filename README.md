@@ -1,4 +1,13 @@
-# ROctopus-server [![Build Status](https://travis-ci.org/roctoproject/rocto-server.svg)](https://travis-ci.org/roctoproject/rocto-server)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/roctoproject/rocto-server/api-spec/icon.png" width="20%"></img>
+  <h1 align="center">rocto-server</h1>
+  <p align="center">
+    <a href="https://travis-ci.org/roctoproject/rocto-server"><img src="https://travis-ci.org/roctoproject/rocto-server.svg"></a>
+    </a>
+  </p>
+</p>
+<br/>
+
 ## How to build & run
 
 1. Install [`node.js`](https://nodejs.org/en/download/).
