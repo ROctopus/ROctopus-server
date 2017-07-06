@@ -1,9 +1,0 @@
-"code";"message";"description";"suggested action"
-
-1;"No jobs available";"either all jobs are already running or done";"do nothing"
-2;"Failed to count available jobs";"database failed to assess whether jobs are available";"try again"
-3;"No job found";"database failed to return the first available job";"try again"
-4;"Job failed to lock";"database failed to lock the job for you";"try again"
-
-5;"Save folder not found";"database could not find the user associated with ID";"try again"
-6;"File save failed";"Server could not save the file in the suggested location";"try again"

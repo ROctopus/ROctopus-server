@@ -1,12 +1,27 @@
 {
- "name": "ROctopus-server",
- "description": "The server for ROctopus",
- "version": "0.0.1",
- "main": "app.js",
- "dependencies": {
-   "sqlite3":"3.x.x",
-   "socket.io": "2.x.x"
- },
- "author": "Erik-Jan van Kesteren",
- "contributors": [ "Oguzhan Ogreden" ]
+  "name": "rocto-server",
+  "description": "The server for rocto",
+  "version": "0.0.2",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./rocto.js",
+    "init-db": "node ./init-db.js",
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "dependencies": {
+    "chai": "^4.0.2",
+    "mocha": "^3.4.2",
+    "socket.io": "2.x.x",
+    "socket.io-client": "^2.0.3",
+    "sqlite3": "3.x.x",
+    "unzip": "^0.1.11"
+  },
+  "author": "Erik-Jan van Kesteren",
+  "contributors": [
+    "Oguzhan Ogreden"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roctoproject/rocto-server.git"
+  }
 }
