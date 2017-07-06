@@ -1,6 +1,10 @@
-# node modules & releases
+# node modules
 node_modules
-results/*
+.ip-address
+
+# database helper files
+*.db-shm
+*.db-wal
 
 # Windows image file caches
 Thumbs.db
