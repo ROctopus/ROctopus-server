@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/roctoproject/rocto-server/api-spec/rocto-icon.png" width="20%"></img>
+  <img src="https://raw.githubusercontent.com/roctoproject/rocto-server/master/rocto-icon.png" width="15%"></img>
   <h1 align="center">rocto-server</h1>
   <p align="center">
     <a href="https://travis-ci.org/roctoproject/rocto-server"><img src="https://travis-ci.org/roctoproject/rocto-server.svg?branch=master"></a>
