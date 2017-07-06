@@ -56,7 +56,7 @@ module.exports = {
             });
           }
         });
-      }      
+      }
     });
   }
 }
@@ -79,25 +79,28 @@ var unpackRocto = function(data, fs, uz, callback) {
       callback(err, null);
     } else {
       // unzip the .rocto file
-      var stream = fs.createReadStream(jobDir + "/roctoJob.rocto");
-      stream.pipe(uz.Extract({
-        path: jobDir + "/roctoJob"
-      }));
+      var stream = fs.createReadStream(jobDir + "/roctoJob.rocto")
+        .pipe(uz.Extract({
+          path: jobDir + "/roctoJob"
+        }));
       stream.on("error", (err) => {
         callback(err, null);
       });
       stream.on('close', () => {
+        console.log("file extracted");
         fs.readdir(jobDir + "/roctoJob", (err, items) => {
           if (err) {
             callback(err, null);
           } else {
             // TODO: check whether the job is a good job
             // read the meta info and callback.
-            var metaLocation = jobDir + "/roctoJob/" + items[0] + "/meta.json";
+            console.log(items)
+            var metaLocation = jobDir + "/roctoJob/" + items + "/meta.json";
+            console.log(metaLocation);
             var meta = require(metaLocation); // read the json file
             callback(null, meta);
           }
-        })
+        });
 
       });
     }
