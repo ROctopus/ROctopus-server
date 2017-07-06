@@ -2,7 +2,7 @@ if (process.argv.length <= 2) {
   console.log("Initing db with 100 tasks.");
   console.log("To init another amount: npm run init-db numTasks\n\n");
   var numTasks = 100;
-} else if (process.argv[2].charAt(0) == "h"){
+} else if (process.argv[2].charAt(0) == "h") {
   console.log("Usage: npm run init-db numTasks\n\n");
   process.exit(-1);
 } else {
@@ -28,7 +28,7 @@ CREATE TABLE queue(
 
 fs.unlink("./db/queue.db", (err) => {
   if (err) {
-    if (err.code != "ENOENT"){ // file doesn't exist
+    if (err.code != "ENOENT") { // file doesn't exist
       throw err;
     }
   }
@@ -37,17 +37,16 @@ fs.unlink("./db/queue.db", (err) => {
     db.run("PRAGMA journal_mode = WAL;");
     db.run(tableDef);
     for (var i = 0; i < numTasks; i++) {
-      db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)",
-             [
-              "JOBIDTEST",
-              "erikjan", 
-              i+1,
-              "http://" + ip + "/public/example.zip",
-              "qw"
-             ]);
+      db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
+        "JOBIDTEST",
+        "erikjan",
+        i + 1,
+        "http://" + ip + "/public/example.zip",
+        "qw"
+      ]);
     }
-  }, function(){ 
-    db.close(function(){
+  }, function() {
+    db.close(function() {
       console.log("Database successfully initialised.\n\n");
     });
   });

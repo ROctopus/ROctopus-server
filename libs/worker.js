@@ -77,7 +77,8 @@ module.exports = {
         } else {
 
           // Check if correct directory exists and otherwise make it
-          var userDir = __dirname + "/../results/" + row.user;
+          // TODO: async & error handling
+          var userDir = __dirname + "/../store/" + row.user;
           if (!fs.existsSync(userDir)) {
             fs.mkdirSync(userDir);
           }
@@ -85,10 +86,14 @@ module.exports = {
           if (!fs.existsSync(jobDir)) {
             fs.mkdirSync(jobDir);
           }
+          var resultsDir = jobDir + "/results"
+          if (!fs.existsSync(resultsDir)) {
+            fs.mkdirSync(resultsDir);
+          }
 
           if (data.exitStatus == 0) {
             // write file to results directory
-            fs.writeFile(jobDir + "/" + iterNo + ".Rdata", bytes,
+            fs.writeFile(resultsDir + "/" + iterNo + ".Rdata", bytes,
               function(err) {
                 if (err) {
                   console.log(err);
@@ -101,7 +106,7 @@ module.exports = {
 
           } else {
             // The task failed
-            var failedDir = jobDir + "/" + "failed"
+            var failedDir = resultsDir + "/" + "failed"
             if (!fs.existsSync(failedDir)) {
               fs.mkdirSync(failedDir);
             }

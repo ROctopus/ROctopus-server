@@ -13,10 +13,15 @@
     "mocha": "^3.4.2",
     "socket.io": "2.x.x",
     "socket.io-client": "^2.0.3",
-    "sqlite3": "3.x.x"
+    "sqlite3": "3.x.x",
+    "unzip": "^0.1.11"
   },
   "author": "Erik-Jan van Kesteren",
   "contributors": [
     "Oguzhan Ogreden"
-  ]
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/roctoproject/rocto-server.git"
+  }
 }

@@ -123,7 +123,7 @@ describe('Unit tests for rocto server', function() {
     });
   }); 
   
-  /*
+  
   describe("Origin communication", function() {
     it("Server should correctly write a new job to the database", (done) => {
       fs.readFile("./test/roctoJob.rocto", (err, data) => {
@@ -148,12 +148,41 @@ describe('Unit tests for rocto server', function() {
         });
         
         socket.once("msg", (message) => {
-          expect(message).to.equal(1);
+          expect(message).to.equal(4);
+          done();
+        });
+      });
+    });
+    
+    it("Server should reject job that was already added", (done) => {
+      fs.readFile("./test/roctoJob.rocto", (err, data) => {
+        if (err) throw err;
+        socket.emit("submit_job", {
+          "meta": {
+            "version": "0.1.0",
+            "jobId": "TESTJOBID",
+            "user": "testuser",
+            "numTasks": 9,
+            "fileSize": data.byteLength,
+            "notify": "notify@example.com", 
+            "requirements": {
+              "memory": 300,
+              "cpuTime": 60,
+              "packages": [],
+              "RVersion": "3.4.0",
+              "cores": 1
+            }
+          },          
+          "content": data.toString("base64")
+        });
+        
+        socket.once("err", (message) => {
+          expect(message).to.equal(7);
           done();
         });
       });
     });
   
   });
-  */
+  
 });
