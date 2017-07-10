@@ -58,6 +58,47 @@ module.exports = {
         });
       }
     });
+  },
+  
+  sendStatus: function(data, opts, db, socket) {
+    console.log("Status update requested by " + data.user + " on job " + data.jobId)
+    
+    // Check version
+    if (data.version != opts.apiVersion) {
+      console.log("incorrect api version")
+      socket.emit("err", -1);
+      return;
+    }
+    
+    var query = "SELECT * FROM queue WHERE user='" + data.user + "' AND jobId='" + data.jobId + "'";
+    
+    db.all(query, (err, rows) => {
+      if (err) {
+        // some database error occurred
+        console.log(err);
+        socket.emit("err", -1);
+      } else if (rows.length < 1) {
+        console.log("Job or user does not exist");
+        socket.emit("err", 8);
+      } else {
+        // We have rows! Now calculate and emit status.
+        var stats = rowsToStats(rows);
+        var pathToFailed = __dirname + "/../store/" + data.user + "/" + data.jobId + "/results/failed/failed.json"
+        try { 
+          var fail = require(pathToFailed); // load json
+        } catch(e) {
+          console.log( "No failed tasks yet: \n\n" + e)
+          var fail = {};
+        }
+        
+        socket.emit("return_status", {
+          "version": "0.1.0",
+          "progress": stats.progress,
+          "status": stats.status,
+          "failures": fail
+        });
+      }
+    });
   }
 }
 
@@ -140,4 +181,28 @@ var nofunc = function() {
       });
     }
   });
+}
+
+var rowsToStats = function(rows) {
+  // First, let's get status frequencies
+  var stati = [];
+  for (i = 0; i < rows.length; i++) {
+    stati.push(rows[i].status);
+  }
+  // nice magic returns a frequency array
+  var tbl = stati.reduce(function(countMap, word) {countMap[word] = ++countMap[word] || 1; return countMap}, {});
+  
+  var freq = { "waiting": 0, "locked": 0, "finished": 0 }
+  
+  if (typeof tbl.qw != 'undefined') freq.waiting += tbl.qw;
+  if (typeof tbl.lc != 'undefined') freq.waiting += tbl.lc;
+  if (typeof tbl.fn != 'undefined') freq.finished += tbl.fn;
+  
+  // progress
+  var prog = freq.finished/rows.length*100
+  
+  return({
+    "progress": prog,
+    "status": freq
+  })
 }

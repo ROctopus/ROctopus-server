@@ -8,5 +8,17 @@ module.exports = {
     // base64 encode
     bu = new Buffer(st2, "binary");
     return bu.toString("base64");
+  },
+  
+  sysTime: function(f, args) {
+    // input function and array of args, output time and result of function
+    if (typeof args != "array") {
+      args = [ args ];
+    }
+    var start = process.hrtime();
+    var out = f.apply(this, args);
+    var elapsed = process.hrtime(start);
+    console.log((elapsed[0] + elapsed[1]/1000000) + " ms");
+    return(out);
   }
 }
