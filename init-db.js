@@ -38,10 +38,10 @@ fs.unlink("./db/queue.db", (err) => {
     db.run(tableDef);
     for (var i = 0; i < numTasks; i++) {
       db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
-        "JOBIDTEST",
-        "erikjan",
+        "TESTJOBID",
+        "testuser",
         i + 1,
-        "http://" + ip + "/public/example.zip",
+        "http://" + ip + "/store/testuser/TESTJOBID/roctoJob.rocto",
         "qw"
       ]);
     }
