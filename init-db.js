@@ -38,7 +38,7 @@ fs.unlink("./db/queue.db", (err) => {
     db.run(tableDef);
     for (var i = 0; i < numTasks; i++) {
       db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
-        "TESTJOBID",
+        "INITJOBID",
         "testuser",
         i + 1,
         "http://" + ip + "/store/testuser/TESTJOBID/roctoJob.rocto",
