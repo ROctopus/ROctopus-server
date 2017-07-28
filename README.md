@@ -15,6 +15,9 @@
 3. Open repo in terminal/shell.
 4. Set up the necessary node modules: `npm install`
 5. OPTIONAL: install pm2 to use daemons: `npm install -g pm2`
-6. OPTIONAL: fill out `ip-address:port` on line 16 of `init-db.js` and `npm run init-db`. This resets the database. You can also add a number (default 100) after the init-db call to specify how many tasks should be initialised.
-6. Run the server: `npm start` OR `pm2 start rocto.js --name rocto`
-7. The server is now running on port `8080`
+6. Fill out `ip-address:port` on line 16 of `init-db.js` line 23 of `rocto.js`. 
+7. `npm run init-db`
+8. `npm test`
+9. OPTIONAL: `npm run read-db`
+10. Run the server: `npm start` OR `pm2 start rocto.js --name rocto`
+11. The server is now running on port `8080`

@@ -44,14 +44,14 @@ describe('Unit tests for rocto server', function() {
             "version": "0.1.0",
             "jobId": "TESTJOBID",
             "user": "testuser",
-            "numTasks": 9,
+            "numTasks": 100,
             "fileSize": data.byteLength,
             "notify": "notify@example.com", 
             "requirements": {
               "memory": 300,
-              "cpuTime": 60,
+              "cpuTime": 1,
               "packages": [],
-              "RVersion": "3.4.0",
+              "RVersion": "3.2.0",
               "cores": 1
             }
           },          

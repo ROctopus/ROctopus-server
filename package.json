@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node ./rocto.js",
-    "init-db": "node ./init-db.js",
+    "init-db": "node ./scripts/init-db.js",
+    "read-db": "node ./scripts/read-db.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "dependencies": {

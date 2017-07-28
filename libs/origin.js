@@ -72,7 +72,7 @@ var unpackRocto = function(data, fs, uz, callback) {
   if (!fs.existsSync(jobDir)) {
     fs.mkdirSync(jobDir);
   }
-  // write the .rocto file to the irectory
+  // write the .rocto file to the directory
   var buf = Buffer.from(data.content, "base64")
   fs.writeFile(jobDir + "/roctoJob.rocto", buf, (err) => {
     if (err) {
