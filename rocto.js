@@ -49,7 +49,4 @@ io.sockets.on("connection", function(socket) {
   socket.on("request_status", (data) => ori.returnStat(data, opts, db, socket));
   // Origin requests results package
   socket.on("request_results", (data) => ori.returnResults(data, opts, tls, fs, socket));
-
-  // Origin requests status
-  socket.on("request_status", (data) => ori.sendStatus(data, opts, db, socket));
 });
