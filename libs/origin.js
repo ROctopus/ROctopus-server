@@ -58,6 +58,74 @@ module.exports = {
         });
       }
     });
+  },
+  
+  // upon status request
+  returnStat: function(data, opts, db, socket) {
+    console.log("Job status requested");
+
+    // Check version
+    if (data.version != opts.apiVersion) {
+      console.log("incorrect api version");
+      socket.emit("err", -1);
+      return;
+    }
+    
+    // Build the query
+    var query = "SELECT * FROM queue WHERE jobId = '" + data.jobId + "' AND user = '" + data.user + "'";
+    
+    db.all(query, (err, rows) => {
+      if (err) {
+        console.log(err);
+        socket.emit("err", -1);
+      }
+      if (rows.length == 0) {
+        // User or jobId not found
+        socket.emit("err", 8);
+      } else {
+        var stats = calculateStats(rows);
+        stats.version = "0.1.0";
+        stats.failures = getFails(data);
+        socket.emit("return_status", stats);
+      }
+    });
+  },
+  
+  returnResults: function(data, opts, tls, fs, socket) {
+    console.log("Job results requested");
+
+    // Check version
+    if (data.version != opts.apiVersion) {
+      console.log("incorrect api version");
+      socket.emit("err", -1);
+      return;
+    }
+    
+    var jobDir = __dirname + "/../store/" + data.user + "/" + data.jobId;
+    var resDir = jobDir + "/results/";
+    var resFile = jobDir + "/" + data.jobId + ".rocres"
+    tls.zipFolder(resDir, resFile, (err) => {
+      if (err) {
+        console.log(err)
+        socket.emit("err", -1);
+        return;
+      } else {
+        fs.readFile(resFile, (err, fileContent) => {
+          if (err) {
+            console.log(err)
+            socket.emit("err", -1);
+            return;
+          } else {
+            socket.emit("return_results", {
+              "version": "0.1.0",
+              "content": fileContent.toString("base64")
+            });
+          }
+        });
+        
+      }
+    });
+    
   }
 }
 
@@ -94,9 +162,7 @@ var unpackRocto = function(data, fs, uz, callback) {
           } else {
             // TODO: check whether the job is a good job
             // read the meta info and callback.
-            console.log(items)
             var metaLocation = jobDir + "/roctoJob/" + items + "/meta.json";
-            console.log(metaLocation);
             var meta = require(metaLocation); // read the json file
             callback(null, meta);
           }
@@ -107,6 +173,51 @@ var unpackRocto = function(data, fs, uz, callback) {
   });
 }
 
+var calculateStats = function(rows) {
+  var nTasks = rows.length;
+  var counts = {
+    "qw": 0,
+    "lc": 0,
+    "dn": 0,
+    "fl": 0
+  };
+  for (i=0; i<nTasks; i++) {
+    var s = rows[i].status;
+    switch(s) {
+      case "qw":
+        ++counts.qw;
+        break;
+      case "lc":
+        ++counts.lc;
+        break;
+      case "dn":
+        ++counts.dn;
+        break;
+    }
+  }
+  var doneProp = counts.dn/nTasks;
+  
+  return({
+    "progress": doneProp,
+    "status": {
+      "waiting": counts.qw,
+      "locked": counts.lc,
+      "finished": counts.dn
+    }
+  });
+}
+
+var getFails = function(data) {
+  
+  try {
+    var fails = require(__dirname + "/../store/" + data.user + "/" + data.jobId + "/results/failed/failed.json");
+  } catch (e) {
+    var fails = {};
+  } finally {
+    return(fails)
+  }
+  
+}
 var nofunc = function() {
   // get lowest jobID
   db.get("SELECT * FROM queue ORDER BY ID DESC", function(err, row) {

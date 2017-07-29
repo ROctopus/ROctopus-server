@@ -15,7 +15,8 @@
     "socket.io": "2.x.x",
     "socket.io-client": "^2.0.3",
     "sqlite3": "3.x.x",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "archiver": "^2.0.0"
   },
   "author": "Erik-Jan van Kesteren",
   "contributors": [

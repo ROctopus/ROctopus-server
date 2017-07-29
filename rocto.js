@@ -4,8 +4,6 @@ const wrk = require("./libs/worker");
 const ori = require("./libs/origin");
 const tls = require("./libs/tools");
 
-
-
 // Module imports
 const url = require("url");
 const fs = require("fs");
@@ -47,5 +45,9 @@ io.sockets.on("connection", function(socket) {
 
   // Origin submits a job
   socket.on("submit_job", (data) => ori.addJob(data, opts, fs, db, uz, socket));
+  // Origin requests job status
+  socket.on("request_status", (data) => ori.returnStat(data, opts, db, socket));
+  // Origin requests results package
+  socket.on("request_results", (data) => ori.returnResults(data, opts, tls, fs, socket));
 
 });

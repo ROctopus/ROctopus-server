@@ -94,6 +94,22 @@ describe('Unit tests for rocto server', function() {
       });
     });
   
+    it("Server should return status upon request", (done) => {
+      socket.emit("request_status", {
+          "version": "0.1.0",
+          "user": "testuser",
+          "jobId": "TESTJOBID"
+      });
+      
+      socket.once("return_status", (data) => {
+        expect(data.version).to.equal("0.1.0");
+        expect(data.progress).to.equal(0);
+        expect(data.status.waiting).to.equal(100);
+        expect(data.status.locked).to.equal(0);
+        expect(data.status.finished).to.equal(0);
+        done();
+      });
+    });
   });
   
   
@@ -183,9 +199,44 @@ describe('Unit tests for rocto server', function() {
         done();
       });
     });
+    
+    
   }); 
   
-  
-  
+  describe("Results communication", function() {
+    it("Server should have updated the status", (done) => {
+      socket.emit("request_status", {
+          "version": "0.1.0",
+          "user": "testuser",
+          "jobId": "TESTJOBID"
+      });
+      
+      socket.once("return_status", (data) => {
+        expect(data.version).to.equal("0.1.0");
+        expect(data.progress).to.equal(0);
+        expect(data.status.waiting).to.equal(99);
+        expect(data.status.locked).to.equal(1);
+        expect(data.status.finished).to.equal(0);
+        // expect(data.status.failures.length).to.be.undefined;
+        done();
+      });
+    });
+    
+    it("Sever should return results upon request", (done) => {
+      socket.emit("request_results", {
+          "version": "0.1.0",
+          "user": "testuser",
+          "jobId": "TESTJOBID"
+      });
+      
+      socket.once("return_results", (data) => {
+        expect(data.version).to.equal("0.1.0");
+        // check for rocres file
+        var rocres = __dirname+"/../store/testuser/TESTJOBID/TESTJOBID.rocres";
+        expect(fs.existsSync(rocres)).to.be.true;
+        done();
+      });
+    });
+  });
   
 });
