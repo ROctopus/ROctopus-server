@@ -22,7 +22,7 @@ describe('Unit tests for rocto server', function() {
     });
 
     socket.on('disconnect', () => {
-      // console.log('disconnected...');
+      // console.log('disconnected socket');
     });
   });
 
@@ -91,6 +91,27 @@ describe('Unit tests for rocto server', function() {
           expect(message).to.equal(7);
           done();
         });
+      });
+    });
+    
+    it("Server should return job status upon request", (done) => {
+      socket.emit("request_status", {
+        "version": "0.1.0",
+        "user": "testuser",
+        "jobId": "TESTJOBID"
+      });
+      
+      socket.once("return_status", (message) => {
+        // Check that the message aligns with api-spec
+        expect(message.version).to.equal("0.1.0");
+        expect(message.progress).to.be.within(0,1);
+        expect(message.status).to.be.an("object");
+        expect(message.status.waiting % 1).to.equal(0);
+        expect(message.status.locked % 1).to.equal(0);
+        expect(message.status.finished % 1).to.equal(0);
+        expect(message.failures).to.be.an("object");
+        expect(Object.keys(message.failures).length).to.equal(0);
+        done();
       });
     });
   
@@ -183,6 +204,29 @@ describe('Unit tests for rocto server', function() {
         done();
       });
     });
+    
+    it("Server should have saved the failed results", (done) => {
+      setTimeout(function () {
+        socket.emit("request_status", {
+          "version": "0.1.0",
+          "user": "testuser",
+          "jobId": "TESTJOBID"
+        });
+        
+        socket.once("return_status", (message) => {
+          // Check that the message aligns with api-spec
+          expect(message.version).to.equal("0.1.0");
+          expect(message.progress).to.be.within(0,1);
+          expect(message.status).to.be.an("object");
+          expect(message.status.waiting % 1).to.equal(0);
+          expect(message.status.locked % 1).to.equal(0);
+          expect(message.status.finished % 1).to.equal(0);
+          expect(message.failures).to.be.an("object");
+          expect(message.failures["1"]).to.equal(1);
+          done();
+        });
+      }, 500); // wait 0.5s for other stuff to finish
+    }).timeout(3000); // lenghten timeout fail;
     
     it("Server should fail on wrong jobId", (done) => {
       var mockResults = new Buffer("someresults").toString("base64");

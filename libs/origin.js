@@ -60,6 +60,7 @@ module.exports = {
     });
   },
   
+
   // upon status request
   returnStat: function(data, opts, db, socket) {
     console.log("Job status requested");
@@ -125,7 +126,6 @@ module.exports = {
         
       }
     });
-    
   }
 }
 
@@ -208,7 +208,6 @@ var calculateStats = function(rows) {
 }
 
 var getFails = function(data) {
-  
   try {
     var fails = require(__dirname + "/../store/" + data.user + "/" + data.jobId + "/results/failed/failed.json");
   } catch (e) {
@@ -216,8 +215,8 @@ var getFails = function(data) {
   } finally {
     return(fails)
   }
-  
 }
+
 var nofunc = function() {
   // get lowest jobID
   db.get("SELECT * FROM queue ORDER BY ID DESC", function(err, row) {
