@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "start": "node ./rocto.js",
-    "init-db": "node ./init-db.js",
+    "init-db": "node ./scripts/init-db.js",
+    "read-db": "node ./scripts/read-db.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "dependencies": {
@@ -14,7 +15,8 @@
     "socket.io": "2.x.x",
     "socket.io-client": "^2.0.3",
     "sqlite3": "3.x.x",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "archiver": "^2.0.0"
   },
   "author": "Erik-Jan van Kesteren",
   "contributors": [

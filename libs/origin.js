@@ -60,43 +60,70 @@ module.exports = {
     });
   },
   
-  sendStatus: function(data, opts, db, socket) {
-    console.log("Status update requested by " + data.user + " on job " + data.jobId)
-    
+
+  // upon status request
+  returnStat: function(data, opts, db, socket) {
+    console.log("Job status requested");
+
     // Check version
     if (data.version != opts.apiVersion) {
-      console.log("incorrect api version")
+      console.log("incorrect api version");
       socket.emit("err", -1);
       return;
     }
     
-    var query = "SELECT * FROM queue WHERE user='" + data.user + "' AND jobId='" + data.jobId + "'";
+    // Build the query
+    var query = "SELECT * FROM queue WHERE jobId = '" + data.jobId + "' AND user = '" + data.user + "'";
     
     db.all(query, (err, rows) => {
       if (err) {
-        // some database error occurred
         console.log(err);
         socket.emit("err", -1);
-      } else if (rows.length < 1) {
-        console.log("Job or user does not exist");
+      }
+      if (rows.length == 0) {
+        // User or jobId not found
         socket.emit("err", 8);
       } else {
-        // We have rows! Now calculate and emit status.
-        var stats = rowsToStats(rows);
-        var pathToFailed = __dirname + "/../store/" + data.user + "/" + data.jobId + "/results/failed/failed.json"
-        try { 
-          var fail = require(pathToFailed); // load json
-        } catch(e) {
-          console.log( "No failed tasks yet: \n\n" + e)
-          var fail = {};
-        }
-        
-        socket.emit("return_status", {
-          "version": "0.1.0",
-          "progress": stats.progress,
-          "status": stats.status,
-          "failures": fail
+        var stats = calculateStats(rows);
+        stats.version = "0.1.0";
+        stats.failures = getFails(data);
+        socket.emit("return_status", stats);
+      }
+    });
+  },
+  
+  returnResults: function(data, opts, tls, fs, socket) {
+    console.log("Job results requested");
+
+    // Check version
+    if (data.version != opts.apiVersion) {
+      console.log("incorrect api version");
+      socket.emit("err", -1);
+      return;
+    }
+    
+    var jobDir = __dirname + "/../store/" + data.user + "/" + data.jobId;
+    var resDir = jobDir + "/results/";
+    var resFile = jobDir + "/" + data.jobId + ".rocres"
+    tls.zipFolder(resDir, resFile, (err) => {
+      if (err) {
+        console.log(err)
+        socket.emit("err", -1);
+        return;
+      } else {
+        fs.readFile(resFile, (err, fileContent) => {
+          if (err) {
+            console.log(err)
+            socket.emit("err", -1);
+            return;
+          } else {
+            socket.emit("return_results", {
+              "version": "0.1.0",
+              "content": fileContent.toString("base64")
+            });
+          }
         });
+        
       }
     });
   }
@@ -113,7 +140,7 @@ var unpackRocto = function(data, fs, uz, callback) {
   if (!fs.existsSync(jobDir)) {
     fs.mkdirSync(jobDir);
   }
-  // write the .rocto file to the irectory
+  // write the .rocto file to the directory
   var buf = Buffer.from(data.content, "base64")
   fs.writeFile(jobDir + "/roctoJob.rocto", buf, (err) => {
     if (err) {
@@ -135,9 +162,7 @@ var unpackRocto = function(data, fs, uz, callback) {
           } else {
             // TODO: check whether the job is a good job
             // read the meta info and callback.
-            console.log(items)
             var metaLocation = jobDir + "/roctoJob/" + items + "/meta.json";
-            console.log(metaLocation);
             var meta = require(metaLocation); // read the json file
             callback(null, meta);
           }
@@ -146,6 +171,50 @@ var unpackRocto = function(data, fs, uz, callback) {
       });
     }
   });
+}
+
+var calculateStats = function(rows) {
+  var nTasks = rows.length;
+  var counts = {
+    "qw": 0,
+    "lc": 0,
+    "dn": 0,
+    "fl": 0
+  };
+  for (i=0; i<nTasks; i++) {
+    var s = rows[i].status;
+    switch(s) {
+      case "qw":
+        ++counts.qw;
+        break;
+      case "lc":
+        ++counts.lc;
+        break;
+      case "dn":
+        ++counts.dn;
+        break;
+    }
+  }
+  var doneProp = counts.dn/nTasks;
+  
+  return({
+    "progress": doneProp,
+    "status": {
+      "waiting": counts.qw,
+      "locked": counts.lc,
+      "finished": counts.dn
+    }
+  });
+}
+
+var getFails = function(data) {
+  try {
+    var fails = require(__dirname + "/../store/" + data.user + "/" + data.jobId + "/results/failed/failed.json");
+  } catch (e) {
+    var fails = {};
+  } finally {
+    return(fails)
+  }
 }
 
 var nofunc = function() {
@@ -181,28 +250,4 @@ var nofunc = function() {
       });
     }
   });
-}
-
-var rowsToStats = function(rows) {
-  // First, let's get status frequencies
-  var stati = [];
-  for (i = 0; i < rows.length; i++) {
-    stati.push(rows[i].status);
-  }
-  // nice magic returns a frequency array
-  var tbl = stati.reduce(function(countMap, word) {countMap[word] = ++countMap[word] || 1; return countMap}, {});
-  
-  var freq = { "waiting": 0, "locked": 0, "finished": 0 }
-  
-  if (typeof tbl.qw != 'undefined') freq.waiting += tbl.qw;
-  if (typeof tbl.lc != 'undefined') freq.waiting += tbl.lc;
-  if (typeof tbl.fn != 'undefined') freq.finished += tbl.fn;
-  
-  // progress
-  var prog = freq.finished/rows.length*100
-  
-  return({
-    "progress": prog,
-    "status": freq
-  })
 }

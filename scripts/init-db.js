@@ -1,7 +1,7 @@
 if (process.argv.length <= 2) {
-  console.log("Initing db with 100 tasks.");
-  console.log("To init another amount: npm run init-db numTasks\n\n");
-  var numTasks = 100;
+  console.log("Initing db with 0 tasks.");
+  console.log("To init with amount: npm run init-db numTasks\n\n");
+  var numTasks = 0;
 } else if (process.argv[2].charAt(0) == "h") {
   console.log("Usage: npm run init-db numTasks\n\n");
   process.exit(-1);
@@ -38,10 +38,10 @@ fs.unlink("./db/queue.db", (err) => {
     db.run(tableDef);
     for (var i = 0; i < numTasks; i++) {
       db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
-        "JOBIDTEST",
-        "erikjan",
+        "INITJOBID",
+        "testuser",
         i + 1,
-        "http://" + ip + "/public/example.zip",
+        "http://" + ip + "/store/testuser/TESTJOBID/roctoJob.rocto",
         "qw"
       ]);
     }

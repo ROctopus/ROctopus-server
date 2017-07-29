@@ -5,7 +5,12 @@ module.exports = {
     const fs = require("fs");
     const path = require("path");
     
-    var filePath = __dirname + "/../public" + url.parse(request.url).pathname;
+    if (url.parse(request.url).pathname.startsWith("/store")) {
+      var filePath = __dirname + "/.." + url.parse(request.url).pathname;
+    } else {
+      var filePath = __dirname + "/../public" + url.parse(request.url).pathname;
+    }
+    
     if (filePath == __dirname + "/../public/")
       filePath = __dirname + "/../public/index.html";
   
