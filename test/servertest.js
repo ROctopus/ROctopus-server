@@ -48,11 +48,26 @@ describe('Unit tests for rocto server', function() {
             "fileSize": data.byteLength,
             "notify": "notify@example.com", 
             "requirements": {
-              "memory": 300,
-              "cpuTime": 1,
-              "packages": [],
-              "RVersion": "3.2.0",
-              "cores": 1
+              "memorySize": [300],
+              "cpuTime": [1],
+              "packages": {},
+              "RInfo": {
+                "platform": ["x86_64-w64-mingw32"],
+                "arch": ["x86_64"],
+                "os": ["mingw32"],
+                "system": ["x86_64, mingw32"],
+                "status": [""],
+                "major": ["3"],
+                "minor": ["4.0"],
+                "year": ["2017"],
+                "month": ["04"],
+                "day": ["21"],
+                "svn rev": ["72570"],
+                "language": ["R"],
+                "version.string": ["R version 3.4.0 (2017-04-21)"],
+                "nickname": ["You Stupid Darkness"]
+              },
+              "cores": [1]
             }
           },          
           "content": data.toString("base64")
@@ -73,15 +88,30 @@ describe('Unit tests for rocto server', function() {
             "version": "0.1.0",
             "jobId": "TESTJOBID",
             "user": "testuser",
-            "numTasks": 9,
+            "numTasks": 100,
             "fileSize": data.byteLength,
             "notify": "notify@example.com", 
             "requirements": {
-              "memory": 300,
-              "cpuTime": 60,
-              "packages": [],
-              "RVersion": "3.4.0",
-              "cores": 1
+              "memorySize": [300],
+              "cpuTime": [1],
+              "packages": {},
+              "RInfo": {
+                "platform": ["x86_64-w64-mingw32"],
+                "arch": ["x86_64"],
+                "os": ["mingw32"],
+                "system": ["x86_64, mingw32"],
+                "status": [""],
+                "major": ["3"],
+                "minor": ["4.0"],
+                "year": ["2017"],
+                "month": ["04"],
+                "day": ["21"],
+                "svn rev": ["72570"],
+                "language": ["R"],
+                "version.string": ["R version 3.4.0 (2017-04-21)"],
+                "nickname": ["You Stupid Darkness"]
+              },
+              "cores": [1]
             }
           },          
           "content": data.toString("base64")
