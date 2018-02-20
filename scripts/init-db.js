@@ -12,8 +12,9 @@ if (process.argv.length <= 2) {
 
 const sq = require("sqlite3").verbose();
 const fs = require("fs");
+const config = require("./../config.json");
 
-var ip = "localhost:8080"; // IP address here, e.g., 192.168.1.100:8080
+var ip = config.ip + ":" + config.port;
 
 var tableDef = `
 CREATE TABLE queue(

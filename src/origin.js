@@ -59,7 +59,7 @@ module.exports = {
       }
     });
   },
-  
+
 
   // upon status request
   returnStat: function(data, opts, db, socket) {
@@ -71,10 +71,10 @@ module.exports = {
       socket.emit("err", -1);
       return;
     }
-    
+
     // Build the query
     var query = "SELECT * FROM queue WHERE jobId = '" + data.jobId + "' AND user = '" + data.user + "'";
-    
+
     db.all(query, (err, rows) => {
       if (err) {
         console.log(err);
@@ -91,7 +91,7 @@ module.exports = {
       }
     });
   },
-  
+
   returnResults: function(data, opts, tls, fs, socket) {
     console.log("Job results requested");
 
@@ -101,7 +101,7 @@ module.exports = {
       socket.emit("err", -1);
       return;
     }
-    
+
     var jobDir = __dirname + "/../store/" + data.user + "/" + data.jobId;
     var resDir = jobDir + "/results/";
     var resFile = jobDir + "/" + data.jobId + ".rocres"
@@ -123,7 +123,7 @@ module.exports = {
             });
           }
         });
-        
+
       }
     });
   }
@@ -196,7 +196,7 @@ var calculateStats = function(rows) {
     }
   }
   var doneProp = counts.dn/nTasks;
-  
+
   return({
     "progress": doneProp,
     "status": {
@@ -215,39 +215,4 @@ var getFails = function(data) {
   } finally {
     return(fails)
   }
-}
-
-var nofunc = function() {
-  // get lowest jobID
-  db.get("SELECT * FROM queue ORDER BY ID DESC", function(err, row) {
-    if (err) {
-      console.log(err);
-      socket.emit("err", {
-        msg: 7
-      }); // Database did not respond
-    } else {
-      var curID = parseInt(row.ID) + 1
-      // Create sql query
-      var insertQuery = "INSERT INTO queue VALUES(" +
-        curID + ",'" +
-        data.rscript + "','" +
-        data.rdata + "','" +
-        data.user +
-        "','qw')";
-      console.log(insertQuery);
-      // run query
-      db.run(insertQuery, function(err) {
-        if (err) {
-          console.log(err);
-          socket.emit("err", {
-            msg: 8
-          }); // Task insertion failed
-        } else {
-          socket.emit("task_added", {
-            "ID": curID
-          });
-        }
-      });
-    }
-  });
 }
