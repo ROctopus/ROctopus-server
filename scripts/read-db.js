@@ -23,9 +23,7 @@ db.all("SELECT * FROM queue", (err, data) => {
   }
   if (parseInt(start) < 0) {
     start = 0;
-  } else if (parseInt(start) > data.length - 1) {
-    start = data.length - 1;
-  } else if (start == "last"){
+  } else if (start == "last" || parseInt(start) > data.length - 1) {
     start = data.length - 1;
   } else {
     start = parseInt(start);
