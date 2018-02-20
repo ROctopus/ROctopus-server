@@ -25,3 +25,4 @@ We can also run the server in cluster mode where automatically load-balances. Fo
 
 1. `npm install -g pm2`
 2. `pm2 start rocto.js --name rocto -i max`
+3. `pm2 monit`
