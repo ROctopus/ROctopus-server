@@ -3,21 +3,23 @@
   "description": "The server for rocto",
   "version": "0.0.2",
   "main": "app.js",
+  "license": "MIT",
   "scripts": {
     "start": "node ./rocto.js",
     "init-db": "node ./scripts/init-db.js",
     "read-db": "node ./scripts/read-db.js",
-    "test": "./node_modules/.bin/mocha --reporter spec"
+    "test": "./node_modules/.bin/mocha --reporter spec --timeout 5000"
   },
   "dependencies": {
+    "archiver": "^2.0.0",
     "chai": "^4.0.2",
     "mocha": "^3.4.2",
+    "npm": "^5.7.1",
     "rimraf": "2.6.2",
     "socket.io": "2.x.x",
     "socket.io-client": "^2.0.3",
     "sqlite3": "3.x.x",
-    "unzip": "^0.1.11",
-    "archiver": "^2.0.0"
+    "unzip": "^0.1.11"
   },
   "author": "Erik-Jan van Kesteren",
   "contributors": [

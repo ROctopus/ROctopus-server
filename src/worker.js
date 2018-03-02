@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 module.exports = {
   // Upon task request
   returnTask: function(data, opts, db, socket) {
@@ -30,8 +32,8 @@ module.exports = {
                   var task = row;
                   console.log("Assigning and locking " + row.jobId + row.iterNo);
                   var lockQuery = `
-                  UPDATE queue 
-                  SET status = "lc" 
+                  UPDATE queue
+                  SET status = "lc"
                   WHERE jobId = '` + row.jobId + `'
                   AND iterNo = ` + row.iterNo + `
                   ;
@@ -59,7 +61,7 @@ module.exports = {
   },
 
   // Upon send results
-  saveResults: function(data, opts, fs, db, socket) {
+  saveResults: function(data, opts, db, socket) {
 
     if (data.version == "0.1.0") {
       var jobId = data.jobId;

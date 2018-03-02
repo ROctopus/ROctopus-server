@@ -1,20 +1,19 @@
+const url = require("url");
+const fs = require("fs");
+const path = require("path");
+
 module.exports = {
   // Http handler function for fileserving and landing page
   handler: function(request, response) {
-    const url = require("url");
-    const fs = require("fs");
-    const path = require("path");
-    
     if (url.parse(request.url).pathname.startsWith("/store")) {
       var filePath = __dirname + "/.." + url.parse(request.url).pathname;
     } else {
       var filePath = __dirname + "/../public" + url.parse(request.url).pathname;
     }
-    
+
     if (filePath == __dirname + "/../public/")
       filePath = __dirname + "/../public/index.html";
-  
-  
+
     var extname = String(path.extname(filePath)).toLowerCase();
     var contentType = "text/html";
     var mimeTypes = {
@@ -34,9 +33,9 @@ module.exports = {
       ".svg": "application/image/svg+xml",
       ".zip": "application/zip"
     };
-  
+
     contentType = mimeTypes[extname] || "application/octet-stream";
-  
+
     fs.readFile(filePath, function(error, content) {
       if (error) {
         if (error.code == "ENOENT") {

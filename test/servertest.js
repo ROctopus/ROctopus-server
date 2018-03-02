@@ -30,10 +30,6 @@ describe('Unit tests for rocto server', function() {
     socket.on('connect', () => {
       done();
     });
-
-    socket.on('disconnect', () => {
-      // console.log('disconnected socket');
-    });
   });
 
   afterEach(function(done) {
@@ -162,7 +158,6 @@ describe('Unit tests for rocto server', function() {
       });
     }).timeout(3000);
   });
-
 
   describe("Worker communication", function() {
     it("Server should return correct job upon request", function(done) {

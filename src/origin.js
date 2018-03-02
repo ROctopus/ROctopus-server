@@ -1,6 +1,10 @@
+const fs = require("fs");
+const uz = require("unzip");
+const tls = require("./tools")
+
 module.exports = {
   // Upon job submit
-  addJob: function(data, opts, fs, db, uz, socket) {
+  addJob: function(data, opts, db, socket) {
     console.log("Job submit requested");
 
     // Check version
@@ -11,7 +15,8 @@ module.exports = {
     }
 
     // First, check if jobID already exists
-    var query = "SELECT * FROM queue WHERE jobId = '" + data.meta.jobId + "' AND user = '" + data.meta.user + "'";
+    var query = "SELECT * FROM queue WHERE jobId = '" +
+      data.meta.jobId + "' AND user = '" + data.meta.user + "'";
 
     db.get(query, (err, row) => {
       if (err) {
@@ -20,17 +25,19 @@ module.exports = {
         socket.emit("err", -1); // database error
       } else if (typeof row != 'undefined') {
         // jobId already exists!
-        console.log("Tried to add job that exists: " + data.meta.user + " " + data.meta.jobId);
+        console.log("Tried to add job that exists: " +
+                    data.meta.user + " " + data.meta.jobId);
         socket.emit("err", 7);
       } else {
         // Now we can proceed to add the job
-        unpackRocto(data, fs, uz, (err, meta) => {
+        unpackRocto(data, (err, meta) => {
           if (err) {
             console.log("Error occurred when unpacking: " + err);
             socket.emit("err", -1);
           } else {
             // add the iterations to the database
-            var contentUrl = "http://" + opts.ip + "/store/" + data.meta.user + "/" + data.meta.jobId + "/roctoJob.rocto";
+            var contentUrl = "http://" + opts.ip + "/store/" +
+              data.meta.user + "/" + data.meta.jobId + "/roctoJob.rocto";
             db.serialize(function() {
               var nAdded = 0;
               for (var i = 0; i < data.meta.numTasks; i++) {
@@ -42,7 +49,8 @@ module.exports = {
                   "qw"
                 ], (err) => {
                   if (err) {
-                    console.log("Error occured when adding to database: " + err);
+                    console.log("Error occured when adding to database: " +
+                                err);
                     socket.emit("err", -1);
                   } else {
                     nAdded++;
@@ -59,7 +67,6 @@ module.exports = {
       }
     });
   },
-
 
   // upon status request
   returnStat: function(data, opts, db, socket) {
@@ -92,7 +99,8 @@ module.exports = {
     });
   },
 
-  returnResults: function(data, opts, tls, fs, socket) {
+  // upon results request
+  returnResults: function(data, opts, socket) {
     console.log("Job results requested");
 
     // Check version
@@ -129,7 +137,7 @@ module.exports = {
   }
 }
 
-var unpackRocto = function(data, fs, uz, callback) {
+var unpackRocto = function(data, callback) {
   // first create user & job directory if it does not exist
   // TODO: async all of this
   var userDir = __dirname + "/../store/" + data.meta.user;
