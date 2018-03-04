@@ -1,15 +1,16 @@
 const fs = require("fs");
 const uz = require("unzip");
-const tls = require("./tools")
+const tls = require("./tools");
+const log = require("./logger");
 
 module.exports = {
   // Upon job submit
   addJob: function(data, opts, db, socket) {
-    console.log("Job submit requested");
+    log.verbose("Job submit requested");
 
     // Check version
     if (data.meta.version != opts.apiVersion) {
-      console.log("incorrect api version")
+      log.verbose("incorrect api version")
       socket.emit("err", -1);
       return;
     }
@@ -21,18 +22,18 @@ module.exports = {
     db.get(query, (err, row) => {
       if (err) {
         // some database error occurred
-        console.log(err);
+        log.error(err);
         socket.emit("err", -1); // database error
       } else if (typeof row != 'undefined') {
         // jobId already exists!
-        console.log("Tried to add job that exists: " +
+        log.verbose("Tried to add job that exists: " +
                     data.meta.user + " " + data.meta.jobId);
         socket.emit("err", 7);
       } else {
         // Now we can proceed to add the job
         unpackRocto(data, (err, meta) => {
           if (err) {
-            console.log("Error occurred when unpacking: " + err);
+            log.error("Error occurred when unpacking: " + err);
             socket.emit("err", -1);
           } else {
             // add the iterations to the database
@@ -40,22 +41,22 @@ module.exports = {
               data.meta.user + "/" + data.meta.jobId + "/roctoJob.rocto";
             db.serialize(function() {
               var nAdded = 0;
-              for (var i = 0; i < data.meta.numTasks; i++) {
+              for (var i in data.meta.selectedTasks) {
                 db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
                   data.meta.jobId,
                   data.meta.user,
-                  i + 1,
+                  Number(i) + 1, // here we switch from 0-start to 1-start for R
                   contentUrl,
                   "qw"
                 ], (err) => {
                   if (err) {
-                    console.log("Error occured when adding to database: " +
-                                err);
+                    log.error("Error occured when adding to database: " +
+                              err);
                     socket.emit("err", -1);
                   } else {
                     nAdded++;
-                    if (nAdded == data.meta.numTasks) {
-                      console.log("Tasks successfully added");
+                    if (nAdded == data.meta.selectedTasks.length) {
+                      log.verbose("Tasks successfully added");
                       socket.emit("msg", 4);
                     }
                   }
@@ -70,11 +71,11 @@ module.exports = {
 
   // upon status request
   returnStat: function(data, opts, db, socket) {
-    console.log("Job status requested");
+    log.verbose("Job status requested");
 
     // Check version
     if (data.version != opts.apiVersion) {
-      console.log("incorrect api version");
+      log.verbose("incorrect api version");
       socket.emit("err", -1);
       return;
     }
@@ -84,7 +85,7 @@ module.exports = {
 
     db.all(query, (err, rows) => {
       if (err) {
-        console.log(err);
+        log.err(err);
         socket.emit("err", -1);
       }
       if (rows.length == 0) {
@@ -92,7 +93,7 @@ module.exports = {
         socket.emit("err", 8);
       } else {
         var stats = calculateStats(rows);
-        stats.version = "0.1.0";
+        stats.version = opts.apiVersion;
         stats.failures = getFails(data);
         socket.emit("return_status", stats);
       }
@@ -101,11 +102,11 @@ module.exports = {
 
   // upon results request
   returnResults: function(data, opts, socket) {
-    console.log("Job results requested");
+    log.verbose("Job results requested");
 
     // Check version
     if (data.version != opts.apiVersion) {
-      console.log("incorrect api version");
+      log.verbose("incorrect api version");
       socket.emit("err", -1);
       return;
     }
@@ -115,18 +116,18 @@ module.exports = {
     var resFile = jobDir + "/" + data.jobId + ".rocres"
     tls.zipFolder(resDir, resFile, (err) => {
       if (err) {
-        console.log(err)
+        log.error(err)
         socket.emit("err", -1);
         return;
       } else {
         fs.readFile(resFile, (err, fileContent) => {
           if (err) {
-            console.log(err)
+            log.error(err)
             socket.emit("err", -1);
             return;
           } else {
             socket.emit("return_results", {
-              "version": "0.1.0",
+              "version": opts.apiVersion,
               "content": fileContent.toString("base64")
             });
           }
@@ -163,7 +164,7 @@ var unpackRocto = function(data, callback) {
         callback(err, null);
       });
       stream.on('close', () => {
-        console.log("file extracted");
+        log.verbose("file extracted");
         fs.readdir(jobDir + "/roctoJob", (err, items) => {
           if (err) {
             callback(err, null);

@@ -49,6 +49,7 @@ fs.unlink("./db/queue.db", (err) => {
   }, function() {
     db.close(function() {
       console.log("Database successfully initialised.\n\n");
+      return 0;
     });
   });
 });

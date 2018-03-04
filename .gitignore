@@ -2,9 +2,13 @@
 node_modules
 .ip-address
 
-# database helper files
+# database files
+db/*
 *.db-shm
 *.db-wal
+
+# log files
+logs/*
 
 # Windows image file caches
 Thumbs.db
@@ -53,3 +57,4 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+*.db-shm

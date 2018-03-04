@@ -1,9 +1,10 @@
 const fs = require("fs");
+const log = require("./logger");
 
 module.exports = {
   // Upon task request
   returnTask: function(data, opts, db, socket) {
-    console.log("task requested")
+    log.verbose("task requested")
     if (data) {
       if (data.version != opts.apiVersion) {
         socket.emit("err", -1);
@@ -11,11 +12,11 @@ module.exports = {
         // Check if any tasks are available
         db.get("SELECT COUNT(*) FROM queue WHERE STATUS='qw'", function(err, nrow) {
           if (err) {
-            console.log(err);
+            log.error(err);
             socket.emit("err", 2); // Failed to count available tasks
           } else {
             if (nrow[["COUNT(*)"]] > 0) {
-              console.log(nrow[["COUNT(*)"]] + " jobs available.");
+              log.verbose(nrow[["COUNT(*)"]] + " jobs available.");
               // If task is available, lock it and send it!
               // Select the first available task from the table
               var taskQuery = `
@@ -26,11 +27,11 @@ module.exports = {
               `
               db.get(taskQuery, function(err, row) {
                 if (err) {
-                  console.log(err);
+                  log.error(err);
                   socket.emit("err", 3); // No task found
                 } else {
                   var task = row;
-                  console.log("Assigning and locking " + row.jobId + row.iterNo);
+                  log.verbose("Assigning and locking " + row.jobId + row.iterNo);
                   var lockQuery = `
                   UPDATE queue
                   SET status = "lc"
@@ -40,11 +41,11 @@ module.exports = {
                   `
                   db.run(lockQuery, function(err) {
                     if (err) {
-                      console.log(err);
+                      log.error(err);
                       socket.emit("err", 4); // Task failed to lock
                     } else {
                       // We can send the task to the worker!
-                      console.log("Sending task to client");
+                      log.verbose("Sending task to client");
                       task.version = opts.apiVersion;
                       socket.emit("return_task", task);
                     }
@@ -63,7 +64,7 @@ module.exports = {
   // Upon send results
   saveResults: function(data, opts, db, socket) {
 
-    if (data.version == "0.1.0") {
+    if (data.version == opts.apiVersion) {
       var jobId = data.jobId;
       var iterNo = data.iterNo;
       var bytes = new Buffer(data.content, "base64");
@@ -98,10 +99,10 @@ module.exports = {
             fs.writeFile(resultsDir + "/" + iterNo + ".Rdata", bytes,
               function(err) {
                 if (err) {
-                  console.log(err);
+                  log.error(err);
                   socket.emit("err", 6); // File save failed
                 } else {
-                  console.log("The file was saved!");
+                  log.verbose("The file was saved!");
                   socket.emit("msg", 2); // Results successfully saved
                 }
               });
@@ -127,10 +128,10 @@ module.exports = {
             fs.writeFile(failedDir + "/failed.json", JSON.stringify(failed),
               function(err) {
                 if (err) {
-                  console.log(err);
+                  log.error(err);
                   socket.emit("err", 6); // File save failed
                 } else {
-                  console.log("The json fail log was updated.");
+                  log.verbose("The json fail log was updated.");
                   socket.emit("msg", 3); // Failed results saved
                 }
               });
@@ -139,10 +140,10 @@ module.exports = {
             fs.writeFile(failedDir + "/" + iterNo + ".txt", bytes.toString(),
               function(err) {
                 if (err) {
-                  console.log(err);
+                  log.error(err);
                   socket.emit("err", 6); // File save failed
                 } else {
-                  console.log("The failure output was saved.");
+                  log.verbose("The failure output was saved.");
                   socket.emit("msg", 3); // Failed results saved
                 }
               });
@@ -153,7 +154,7 @@ module.exports = {
       });
 
     } else {
-      console.log("Incorrect api version");
+      log.verbose("Incorrect api version");
       socket.emit("err", -1)
     }
   }
