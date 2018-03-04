@@ -63,7 +63,7 @@ module.exports = {
   // Upon send results
   saveResults: function(data, opts, db, socket) {
 
-    if (data.version == "0.1.0") {
+    if (data.version == opts.apiVersion) {
       var jobId = data.jobId;
       var iterNo = data.iterNo;
       var bytes = new Buffer(data.content, "base64");

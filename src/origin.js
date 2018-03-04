@@ -40,11 +40,11 @@ module.exports = {
               data.meta.user + "/" + data.meta.jobId + "/roctoJob.rocto";
             db.serialize(function() {
               var nAdded = 0;
-              for (var i = 0; i < data.meta.numTasks; i++) {
+              for (var i in data.meta.selectedTasks) {
                 db.run("INSERT INTO queue (jobId, user, iterNo, contentUrl, status) VALUES (?, ?, ?, ?, ?)", [
                   data.meta.jobId,
                   data.meta.user,
-                  i + 1,
+                  Number(i) + 1, // here we switch from 0-start to 1-start for R
                   contentUrl,
                   "qw"
                 ], (err) => {
@@ -54,7 +54,7 @@ module.exports = {
                     socket.emit("err", -1);
                   } else {
                     nAdded++;
-                    if (nAdded == data.meta.numTasks) {
+                    if (nAdded == data.meta.selectedTasks.length) {
                       console.log("Tasks successfully added");
                       socket.emit("msg", 4);
                     }
@@ -92,7 +92,7 @@ module.exports = {
         socket.emit("err", 8);
       } else {
         var stats = calculateStats(rows);
-        stats.version = "0.1.0";
+        stats.version = opts.apiVersion;
         stats.failures = getFails(data);
         socket.emit("return_status", stats);
       }
@@ -126,7 +126,7 @@ module.exports = {
             return;
           } else {
             socket.emit("return_results", {
-              "version": "0.1.0",
+              "version": opts.apiVersion,
               "content": fileContent.toString("base64")
             });
           }
